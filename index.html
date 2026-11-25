@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz de Histologia · Sistema Digestório</title>
+<style>
+:root{
+  --bg:#fbf6f4; --card:#fff; --ink:#2b1d24; --muted:#7a6670; --line:#ecdfe3;
+  --eosin:#d9468a; --eosin-soft:#fbe3ee; --hema:#4b3a8c; --hema-soft:#e9e5f7;
+  --ok:#1f8a5b; --ok-soft:#e1f4ea; --bad:#c0392b; --bad-soft:#fbe6e3;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% 0%,#fde9f1 0,transparent 40%),radial-gradient(circle at 100% 100%,#ece8fb 0,transparent 45%);min-height:100vh}
+.wrap{max-width:880px;margin:0 auto;padding:24px 16px 64px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.logo{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--hema) 0 22%,var(--eosin-soft) 23% 100%);border:3px solid var(--eosin);flex:none}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:1.5rem;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:.9rem;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:0 6px 24px -12px rgba(75,58,140,.18)}
+h2{font-family:Georgia,serif;font-size:1.25rem;margin:0 0 12px}
+h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--hema);border-color:var(--hema);color:#fff}
+.chip:focus-visible,.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--eosin);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;background:var(--eosin);color:#fff}
+.btn.sec{background:var(--hema-soft);color:var(--hema)}
+.btn.ghost{background:transparent;color:var(--muted);padding:8px 10px;font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.small{font-size:.85rem;color:var(--muted)}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:4px 0 16px}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--hema),var(--eosin));transition:width .3s}
+.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.tag{display:inline-block;background:var(--eosin-soft);color:#9b1f5a;border-radius:6px;padding:2px 8px;font-size:.78rem;font-weight:600;margin-right:4px}
+.tag.t2{background:var(--hema-soft);color:var(--hema)}
+.figure{margin:14px 0 6px;border-radius:10px;overflow:hidden;background:#f3eef0;cursor:zoom-in;position:relative}
+.figure img{display:block;width:100%;height:auto;max-height:440px;object-fit:contain;background:#f3eef0}
+.figure .hint{position:absolute;right:8px;bottom:8px;background:rgba(43,29,36,.7);color:#fff;font-size:.75rem;padding:3px 8px;border-radius:6px}
+.caption{font-size:.85rem;color:var(--muted);margin:0 0 4px}
+.q{font-size:1.12rem;font-weight:600;margin:14px 0 14px}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--hema)}
+.opt .k{flex:none;width:24px;height:24px;border-radius:6px;background:var(--hema-soft);color:var(--hema);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.feedback{margin-top:16px;border-radius:10px;padding:14px 16px;border-left:4px solid}
+.feedback.ok{background:var(--ok-soft);border-color:var(--ok)}
+.feedback.bad{background:var(--bad-soft);border-color:var(--bad)}
+.feedback b.t{display:block;margin-bottom:6px}
+.raciocinio{margin-top:10px;background:#fff;border-radius:8px;padding:10px 12px;font-size:.95rem}
+.raciocinio strong{color:var(--hema)}
+.next{margin-top:16px;display:flex;justify-content:flex-end}
+.score{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--eosin) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring span{width:94px;height:94px;border-radius:50%;background:#fff;display:grid;place-items:center;font:700 1.6rem Georgia,serif}
+.stat{font-size:.95rem}
+.stat b{font-size:1.2rem}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(120px,210px) 1fr 52px;gap:10px;align-items:center;font-size:.9rem}
+.bar .tr{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar .tr i{display:block;height:100%}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.weak{background:var(--bad-soft);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:.95rem}
+details.err{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fff}
+details.err summary{cursor:pointer;font-weight:600}
+details.err img{width:100%;max-height:260px;object-fit:contain;background:#f3eef0;border-radius:8px;margin-top:8px}
+.zoom{position:fixed;inset:0;background:rgba(20,12,16,.92);display:none;align-items:center;justify-content:center;z-index:9;cursor:zoom-out;padding:12px}
+.zoom.on{display:flex}
+.zoom img{max-width:100%;max-height:100%}
+footer{margin-top:28px;font-size:.8rem;color:var(--muted);text-align:center}
+footer a{color:var(--hema)}
+@media (max-width:560px){.card{padding:16px}.bar{grid-template-columns:1fr 60px}.bar .tr{grid-column:1/-1;order:3}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo" aria-hidden="true"></div>
+    <div><h1>Quiz de Histologia · Digestório</h1><p class="sub">Lâminas J1 a J23 do Atlas de Histologia UFG</p></div>
+  </header>
+  <main id="app" class="card" aria-live="polite"></main>
+  <footer>
+    Imagens: <a href="https://histologia.icb.ufg.br/diges.html" target="_blank" rel="noopener">Atlas de Histologia UFG · DHisto ICB-UFG</a>, usadas conforme a permissão de cópia com indicação da fonte (legendas removidas para o quiz).
+  </footer>
+</div>
+<div class="zoom" id="zoom" role="dialog" aria-label="Imagem ampliada"><img alt=""></div>
+
+<script>
+/* ===================== DADOS ===================== */
+const TEMAS = ["Língua","Esôfago","Transição esôfago-estômago","Estômago","Transição estômago-duodeno","Duodeno","Jejuno-íleo","Íleo (placa de Peyer)","Apêndice","Intestino grosso","Parótida","Submandibular","Sublingual","Pâncreas","Fígado","Vesícula biliar","Geral"];
+
+const TIPOS = {estrutura:"Identificar estrutura", localizar:"Localizar estrutura", lamina:"Reconhecer a lâmina", coloracao:"Técnica de coloração", teoria:"Teoria e raciocínio"};
+
+// Órgãos: nome da resposta, tema e o raciocínio diagnóstico
+const ORG = {
+  lingua:{n:"Língua (porção anterior)",t:"Língua",f:"lingua",e:"Massa de músculo estriado esquelético em feixes que se cruzam em várias direções, revestida por epitélio estratificado pavimentoso. A face dorsal é cheia de papilas (filiformes e fungiformes) e a ventral é lisa. Músculo esquelético + papilas = língua."},
+  linguaV:{n:"Língua – V lingual (papila circunvalada)",t:"Língua",f:"lingua",e:"Papila grande que não ultrapassa a superfície, cercada por um sulco profundo, com botões gustativos nas paredes laterais e glândulas de von Ebner por baixo, abrindo no sulco. Isso é papila circunvalada, típica do V lingual."},
+  esofago:{n:"Esôfago",t:"Esôfago",f:"tubo",e:"Epitélio estratificado pavimentoso não queratinizado + glândulas mucosas na submucosa (glândulas esofágicas) + muscular espessa. É o único segmento do tubo com esse epitélio E glândulas mucosas na submucosa."},
+  transEE:{n:"Transição esôfago-estômago (cárdia)",t:"Transição esôfago-estômago",f:"tubo",e:"No mesmo corte, o epitélio estratificado pavimentoso muda de forma abrupta para simples cilíndrico com fovéolas, e aparecem glândulas cárdicas. Dois epitélios diferentes lado a lado indicam uma transição; pavimentoso → cilíndrico indica esôfago → estômago."},
+  estomago:{n:"Estômago (fundo/corpo)",t:"Estômago",f:"tubo",e:"Epitélio simples cilíndrico formando fovéolas rasas, que continuam em glândulas tubulares longas cheias de células parietais (rosadas) e principais (roxas). Não há vilos. A muscular tem três camadas (oblíqua, circular e longitudinal)."},
+  transED:{n:"Transição estômago-duodeno (piloro)",t:"Transição estômago-duodeno",f:"tubo",e:"De um lado, fovéolas profundas e glândulas pilóricas mucosas (estômago); do outro, vilos e glândulas de Brünner na submucosa (duodeno). No meio, um espessamento da camada circular forma o esfíncter pilórico."},
+  duodeno:{n:"Duodeno",t:"Duodeno",f:"tubo",e:"Vilos + criptas de Lieberkühn indicam intestino delgado; glândulas mucosas de Brünner na SUBMUCOSA indicam duodeno. Brünner só existe no duodeno."},
+  jejuno:{n:"Jejuno-íleo",t:"Jejuno-íleo",f:"tubo",e:"Vilos longos com enterócitos e caliciformes e criptas de Lieberkühn indicam intestino delgado. Submucosa SEM glândulas (não é duodeno) e sem grandes agregados linfáticos (não é íleo com Peyer) indica jejuno-íleo."},
+  ileo:{n:"Íleo (placa de Peyer)",t:"Íleo (placa de Peyer)",f:"tubo",e:"Vilos indicam intestino delgado; uma fileira de grandes nódulos linfáticos ocupando a submucosa (placa de Peyer) indica íleo."},
+  apendice:{n:"Apêndice vermiforme",t:"Apêndice",f:"tubo",e:"Corte transversal pequeno com luz estreita e irregular, sem vilos, poucas glândulas de Lieberkühn e muitos nódulos linfáticos em volta de quase toda a circunferência da mucosa/submucosa."},
+  grosso:{n:"Intestino grosso (cólon)",t:"Intestino grosso",f:"tubo",e:"Não há vilos. A mucosa é plana, com muitas glândulas de Lieberkühn retas, longas e paralelas, repletas de células caliciformes."},
+  parotida:{n:"Glândula parótida",t:"Parótida",f:"glandula",e:"Glândula multilobulada formada só por ácinos serosos (citoplasma corado, núcleo redondo basal), com ductos intercalares e estriados. Nenhum ácino mucoso e nenhuma ilhota: serosa pura = parótida."},
+  submand:{n:"Glândula submandibular",t:"Submandibular",f:"glandula",e:"Glândula mista com predomínio SEROSO: a maioria dos ácinos é escura (serosa), com alguns ácinos mucosos claros com meia-lua serosa espalhados no meio."},
+  subling:{n:"Glândula sublingual",t:"Sublingual",f:"glandula",e:"Glândula mista com predomínio MUCOSO: o campo é dominado por ácinos claros e espumosos (mucosos) com meias-luas serosas. Quase não há ácinos serosos puros."},
+  pancreas:{n:"Pâncreas",t:"Pâncreas",f:"glandula",e:"Ácinos serosos parecidos com os da parótida, mas com ilhotas de Langerhans (áreas mais claras) entre eles, células centroacinosas dentro dos ácinos e SEM ductos estriados."},
+  figado:{n:"Fígado",t:"Fígado",f:"figado",e:"Parênquima de hepatócitos em cordões radiais que convergem para a veia centrolobular, com sinusoides entre os cordões e espaços porta (artéria, veia, ducto bilífero) na periferia do lóbulo."},
+  vesicula:{n:"Vesícula biliar",t:"Vesícula biliar",f:"figado",e:"Órgão oco com mucosa pregueada (pseudovilos) de epitélio simples cilíndrico, SEM muscular da mucosa e SEM submucosa, músculo liso fino e adventícia colada ao fígado do lado aderido."}
+};
+
+const COR = {
+  HE:{n:"Hematoxilina-eosina (HE)",e:"HE é a coloração de rotina: núcleos roxos (hematoxilina) e citoplasma/fibras em tons de rosa (eosina), sem nenhuma cor especial."},
+  mallory:{n:"Mallory (tricrômico)",e:"No Mallory o tecido conjuntivo (colágeno) fica azul/azul-esverdeado, contrastando com os hepatócitos avermelhados e as hemácias vermelho-vivas. Septos azuis delimitando os lóbulos são a pista."},
+  prata:{n:"Impregnação por prata",e:"Na impregnação por prata o fundo fica castanho-dourado, as fibras reticulares (colágeno III) ficam negras e delgadas e as colágenas, castanhas e espessas. A trama negra fina entre os hepatócitos é a pista."},
+  vital:{n:"Coloração vital (nanquim/carmim)",e:"Na coloração vital o corante (nanquim ou carmim) é injetado no animal vivo e fagocitado. Só os macrófagos (células de Kupffer) ficam com grânulos pretos (nanquim) ou citoplasma vermelho (carmim), enquanto o resto do tecido fica sem marcação especial."},
+  PAS:{n:"Reação de P.A.S.",e:"A reação de PAS (ácido periódico-Schiff) cora em magenta carboidratos como o glicogênio. No fígado aparecem grânulos magenta no citoplasma dos hepatócitos."}
+};
+
+// Estruturas: nome e como reconhecer
+const S = {
+  queratina:["Camada delgada de queratina","Faixa acelular, homogênea e rosada na superfície do epitélio estratificado pavimentoso. No atlas a língua tem queratina delgada (no humano não é queratinizada)."],
+  epLingua:["Epitélio estratificado pavimentoso","Muitas camadas de células, com as superficiais achatadas. Reveste a mucosa dorsal da língua por baixo da camada de queratina."],
+  fung:["Papila fungiforme","Projeção larga, em forma de cogumelo, com eixo de conjuntivo amplo. Fica isolada entre as filiformes e é mais rara que elas."],
+  filif:["Papila filiforme","Projeção cônica, fina e pontiaguda, a mais numerosa da língua, com a ponta mais queratinizada. Não tem botões gustativos."],
+  lp:["Lâmina própria","Tecido conjuntivo frouxo logo abaixo do epitélio, ainda dentro da mucosa, acima da muscular da mucosa ou do músculo do órgão."],
+  lpVentral:["Lâmina própria da mucosa ventral","Conjuntivo logo abaixo do epitélio liso da face ventral (de baixo) da língua."],
+  epVentral:["Epitélio estratificado pavimentoso não queratinizado da mucosa ventral","A face ventral da língua é lisa, sem papilas, revestida por epitélio estratificado pavimentoso não queratinizado."],
+  arteria:["Artéria","Parede espessa com túnica média muscular bem desenvolvida e luz relativamente pequena e regular."],
+  veia:["Veia","Parede fina em relação ao tamanho da luz, muitas vezes colapsada ou de contorno irregular."],
+  nervo:["Nervo","Feixe arredondado de fibras, de aspecto ondulado e claro, envolvido por perineuro e sem luz."],
+  mEsq:["Músculo estriado esquelético","Fibras grossas e longas com núcleos periféricos, em feixes cortados em várias direções (típico da língua)."],
+  adiposo:["Tecido adiposo","Células grandes e vazias (a gordura sai no processamento), com núcleo achatado na periferia, formando uma rede clara."],
+  botao:["Botão (corpúsculo) gustativo","Estrutura ovalada e clara dentro do epitélio, como um 'barril', com células fusiformes. Fica nas paredes laterais da papila circunvalada."],
+  vonEbner:["Glândulas de von Ebner","Glândulas linguais abaixo da papila circunvalada que desembocam no fundo do sulco, lavando-o. No atlas aparecem com ácinos serosos e mucosos (classicamente são descritas como serosas)."],
+  epEPNQ:["Epitélio estratificado pavimentoso não queratinizado","Várias camadas com células superficiais achatadas e nucleadas, sem camada de queratina. É o revestimento do esôfago."],
+  mm:["Muscular da mucosa","Faixa fina de músculo liso no limite entre a lâmina própria e a submucosa. Marca o fim da mucosa."],
+  glEsof:["Glândulas esofágicas (ácinos mucosos)","Ácinos claros e espumosos (mucosos) dentro da submucosa. Glândula mucosa na submucosa com epitélio pavimentoso por cima = esôfago."],
+  tcVasos:["Tecido conjuntivo da submucosa com vasos e nervos","Conjuntivo mais denso que a lâmina própria, por baixo da muscular da mucosa, levando os vasos maiores e os nervos."],
+  circInt:["Camada muscular circular interna","A camada mais interna da muscular externa. Num corte longitudinal suas fibras aparecem cortadas transversalmente, e vice-versa."],
+  longExt:["Camada muscular longitudinal externa","A camada mais externa da muscular, logo antes da serosa/adventícia. Suas fibras ficam perpendiculares às da circular."],
+  submeso:["Camada (estrato) submesotelial","Conjuntivo frouxo logo abaixo do mesotélio. Junto com ele forma a serosa."],
+  meso:["Mesotélio","Epitélio simples pavimentoso, uma única fileira de núcleos achatados, na superfície externa do órgão. Junto com o submesotelial forma a serosa."],
+  mucosa:["Mucosa","A camada mais interna: epitélio + lâmina própria + muscular da mucosa."],
+  submucosa:["Submucosa","Camada de conjuntivo entre a muscular da mucosa e a muscular externa, com vasos maiores e, em alguns órgãos, glândulas (esôfago, duodeno) ou nódulos linfáticos."],
+  muscular:["Muscular (externa)","Camadas espessas de músculo (circular e longitudinal; no estômago, também oblíqua) por fora da submucosa."],
+  serosa:["Serosa","Revestimento externo: mesotélio + conjuntivo submesotelial. Fica nas partes do tubo voltadas para a cavidade peritoneal."],
+  epSC:["Epitélio simples cilíndrico","Uma única camada de células altas, com núcleos alinhados na base."],
+  transicao:["Zona de transição epitelial (esôfago → estômago)","Ponto exato em que o epitélio estratificado pavimentoso termina e começa o simples cilíndrico."],
+  glCardLP:["Glândulas cárdicas (tubulares) na lâmina própria","Glândulas tubulares mucosas na lâmina própria logo abaixo do epitélio cilíndrico na região da cárdia."],
+  glCardSub:["Glândulas cárdicas esofágicas na submucosa","Ácinos mucosos claros na submucosa da região de transição."],
+  mmDescont:["Muscular da mucosa descontínua","Na transição esôfago-estômago a muscular da mucosa aparece interrompida, em feixes separados."],
+  esfCard:["Espessamento muscular que forma o esfíncter cárdico","As camadas circular interna e longitudinal externa ficam mais espessas na junção, formando o esfíncter cárdico (esofágico inferior)."],
+  foveola:["Fovéolas (fossetas ou criptas) gástricas","Invaginações do epitélio superficial do estômago, revestidas por epitélio simples cilíndrico mucoso. As glândulas desembocam no fundo delas."],
+  glFund:["Glândulas fúndicas (tubulares)","Glândulas tubulares longas na lâmina própria do fundo e do corpo do estômago, cheias de células parietais e principais."],
+  principal:["Células principais (zimogênicas) – basófilas","Ficam mais na base das glândulas fúndicas, com citoplasma azulado/roxo (basófilo) por causa do RER que sintetiza pepsinogênio."],
+  parietal:["Células parietais (oxínticas) – acidófilas","Células grandes, arredondadas, com citoplasma bem rosado (acidófilo, rico em mitocôndrias) e núcleo central. Produzem HCl e fator intrínseco."],
+  obliqua:["Camada muscular oblíqua interna","Exclusiva do estômago: a camada mais interna da muscular externa, com fibras oblíquas."],
+  circMedia:["Camada muscular circular média","No estômago, a camada do meio da muscular externa (entre a oblíqua e a longitudinal)."],
+  estomagoP:["Estômago (região pilórica)","Lado com fovéolas e glândulas gástricas, sem vilos."],
+  duodenoP:["Duodeno","Lado com vilos e glândulas de Brünner na submucosa."],
+  glPil:["Glândulas pilóricas (tubulosas mucosas)","Glândulas mucosas curtas e enoveladas abaixo de fovéolas profundas, na região pilórica."],
+  mmCont:["Muscular da mucosa contínua","Faixa fina e ininterrupta de músculo liso separando a mucosa da submucosa."],
+  submucSemGl:["Submucosa (sem glândulas)","Conjuntivo abaixo da muscular da mucosa. No lado gástrico não há glândulas na submucosa."],
+  mmDescDuod:["Muscular da mucosa descontínua (lado duodenal)","No início do duodeno a muscular da mucosa é atravessada pelas glândulas de Brünner, que passam da mucosa para a submucosa, e por isso fica descontínua."],
+  absortiva:["Células absortivas (enterócitos)","Células cilíndricas altas, com borda em escova (microvilos) no ápice, revestindo os vilos."],
+  caliciforme:["Células caliciformes","Células em forma de cálice com o ápice claro (o muco se perde no HE), intercaladas entre os enterócitos."],
+  lieberkuhn:["Glândulas (criptas) de Lieberkühn","Glândulas tubulares simples na lâmina própria, entre a base dos vilos e a muscular da mucosa."],
+  lieberkuhnG:["Glândulas de Lieberkühn (muitas, retas e paralelas)","No intestino grosso as glândulas são longas, retas e lado a lado, com muitas caliciformes, e não há vilos."],
+  lieberkuhnA:["Glândulas de Lieberkühn (poucas)","No apêndice as glândulas são poucas e irregulares, espremidas pelos nódulos linfáticos."],
+  brunner:["Glândulas de Brünner (duodenais)","Glândulas mucosas claras na SUBMUCOSA do duodeno. Secretam muco alcalino que neutraliza o quimo ácido."],
+  celM:["Células M","Células do epitélio que recobre a placa de Peyer. Captam antígenos da luz e os entregam às células imunes."],
+  peyer:["Nódulos linfáticos da placa de Peyer","Grandes nódulos linfáticos agregados (roxos, cheios de linfócitos) na mucosa e na submucosa do íleo."],
+  nodulos:["Nódulos linfáticos","Aglomerados arredondados de linfócitos, roxos no HE, às vezes com centro germinativo mais claro."],
+  noduloSub:["Nódulo linfático na submucosa","Acúmulo de linfócitos (roxo) abaixo da muscular da mucosa."],
+  acinoSeroso:["Ácinos serosos","Ácinos de células piramidais com citoplasma corado (grânulos de zimogênio), núcleo redondo basal e luz pequena."],
+  acinoMisto:["Ácinos seromucosos (células mucosas com meia-lua serosa)","Ácinos de células claras e espumosas (mucosas), cobertos por um 'capuz' de células serosas escuras."],
+  meiaLua:["Meia-lua serosa","Grupo de células serosas escuras em forma de crescente na extremidade de um ácino mucoso claro."],
+  capsula:["Cápsula","Conjuntivo denso que envolve a glândula por fora."],
+  trabecula:["Trabécula (septo)","Septo de conjuntivo que parte da cápsula e divide a glândula em lobos e lóbulos."],
+  intercalar:["Ducto intercalar","O menor ducto, logo na saída do ácino: luz minúscula e epitélio simples cúbico baixo. Difícil de achar."],
+  estriado:["Ducto estriado","Ducto intralobular de epitélio cúbico a cilíndrico, com citoplasma bem rosado e estrias basais (mitocôndrias entre dobras da membrana)."],
+  excretor:["Ducto excretor (interlobular)","Ducto grande no conjuntivo entre os lóbulos, com epitélio estratificado cilíndrico e envolto por bastante conjuntivo."],
+  tcInterlob:["Tecido conjuntivo interlobular","Conjuntivo que envolve os ductos excretores e separa os lóbulos."],
+  centroacinosa:["Células centroacinosas","Células claras e achatadas no CENTRO do ácino pancreático. São o início do ducto intercalar dentro do ácino, exclusivas do pâncreas."],
+  intercalarP:["Ducto intercalar (pâncreas)","Ducto pequeno de epitélio simples cúbico que sai dos ácinos. No pâncreas é longo e bem visível."],
+  intralobular:["Ducto intralobular","Ducto dentro do lóbulo, formado pela união dos intercalares. No pâncreas não existe ducto estriado."],
+  excretorP:["Ducto excretor do pâncreas","Ducto grande, de epitélio simples a estratificado cilíndrico, envolto por grande quantidade de conjuntivo."],
+  tcP:["Tecido conjuntivo (septo/periductal)","Conjuntivo que separa os lóbulos e envolve os ductos maiores do pâncreas."],
+  ilhota:["Ilhota pancreática (de Langerhans)","Agrupamento de células endócrinas, mais claro que os ácinos ao redor, com muitos capilares e sem luz central."],
+  vcl:["Veia centrolobular (central do lóbulo)","Vaso no centro do lóbulo para onde convergem os cordões de hepatócitos e os sinusoides. Tem parede bem fina."],
+  hepatocitos:["Hepatócitos (em trabéculas radiais)","Células poligonais grandes, com núcleo redondo central, em cordões que se irradiam da veia centrolobular."],
+  sinusoide:["Sinusoides","Espaços vasculares estreitos entre os cordões de hepatócitos, levando sangue da periferia para a veia centrolobular."],
+  tcFig:["Tecido conjuntivo interlobular","Septos de conjuntivo que delimitam os lóbulos hepáticos (bem evidentes nesta lâmina)."],
+  arteriaHep:["Artéria (ramo da artéria hepática)","No espaço porta: o vaso de luz pequena e parede muscular espessa."],
+  veiaPorta:["Veia (ramo da veia porta)","No espaço porta: o maior vaso, de luz ampla e parede fina, frequentemente com sangue."],
+  ductoBil:["Ducto bilífero","No espaço porta: ducto revestido por epitélio cúbico a cilíndrico, com núcleos bem alinhados."],
+  linfatico:["Vaso linfático","No espaço porta: vaso de parede finíssima e luz vazia, sem hemácias."],
+  retic:["Fibras reticulares (delgadas e negras)","Na prata, a trama fina e negra ao longo dos sinusoides, sustentando os cordões de hepatócitos."],
+  colagenas:["Fibras colágenas (castanhas e espessas)","Na prata, fibras grossas e castanhas nos septos e espaços porta."],
+  hepatocitosP:["Hepatócitos","Células do parênquima, castanho-alaranjadas na prata, delimitadas pela rede reticular."],
+  lobulo:["Lóbulo hepático","Unidade poligonal de parênquima com a veia centrolobular no centro, delimitada por conjuntivo."],
+  kupffer:["Células de Kupffer (macrófagos do fígado)","Células alongadas nos sinusoides que fagocitaram o corante vital e ficaram com grânulos pretos (nanquim) ou citoplasma avermelhado (carmim)."],
+  glicogenio:["Grânulos de glicogênio","Grânulos magenta (PAS+) no citoplasma dos hepatócitos."],
+  pseudovilos:["Pseudovilos (pregas da mucosa)","Pregas da mucosa da vesícula (epitélio + lâmina própria), sem a estrutura de um vilo verdadeiro."],
+  muscVes:["Camada muscular (músculo liso)","Feixes finos de músculo liso entremeados com conjuntivo. Na vesícula fica logo abaixo da lâmina própria, porque não há submucosa."],
+  adventicia:["Adventícia","Conjuntivo SEM mesotélio, que se funde ao órgão vizinho. Na vesícula é a face aderida ao fígado."],
+  figadoAdj:["Fígado (parênquima adjacente)","Parênquima hepático colado à vesícula, do lado da adventícia."]
+};
+
+// Imagens: org = pode virar pergunta de reconhecimento; cor = técnica; m = marcações [marca, estrutura]
+const IMGS = [
+ {id:"j11",lam:"J1/J2 – Língua, porção anterior (HE)",org:"lingua",cor:"HE",m:[["seta longa","fung"],["seta curta","filif"],["*","lp"],["ponta de seta","epVentral"],["5","lpVentral"]]},
+ {id:"j12",lam:"J1/J2 – Língua, feixe vásculo-nervoso (HE)",m:[["A","arteria"],["B","veia"],["C","nervo"],["3","mEsq"],["4","adiposo"]]},
+ {id:"j13",lam:"J1/J2 – Língua, mucosa dorsal (HE)",org:"lingua",m:[["1","queratina"],["2","epLingua"],["*","lp"],["seta longa","fung"],["seta curta","filif"]]},
+ {id:"j21",lam:"J1/J2 – Língua, mucosa dorsal",m:[["1","queratina"],["2","epLingua"],["*","lp"],["seta longa","fung"],["seta curta","filif"]]},
+ {id:"j31",lam:"J3 – Língua, V lingual (HE)",org:"linguaV",m:[["seta curta","botao"],["1","mEsq"]]},
+ {id:"j32",lam:"J3 – Língua, V lingual (HE)",org:"linguaV",m:[["seta","botao"],["*","vonEbner"]]},
+ {id:"j33",lam:"J3 – Língua, V lingual (HE)",m:[["seta","botao"]]},
+ {id:"j41",lam:"J4/J5 – Esôfago, corte longitudinal (HE)",org:"esofago",m:[["1","epEPNQ"],["2","lp"],["3","mm"],["seta curta","glEsof"],["4","tcVasos"],["5.1","circInt"],["5.2","longExt"],["6","submeso"],["7","meso"]]},
+ {id:"j42",lam:"J4/J5 – Esôfago, corte longitudinal (HE)",org:"esofago",m:[["A","mucosa"],["B","submucosa"],["5","muscular"],["C","serosa"]]},
+ {id:"j61",lam:"J6 – Transição esôfago-estômago (HE)",org:"transEE",m:[["A","mucosa"],["B","submucosa"],["C","muscular"],["D","serosa"],["1","epEPNQ"],["2","epSC"],["*","transicao"],["seta curta","glCardLP"],["seta longa","glCardSub"],["3","mmDescont"],["4","esfCard"]]},
+ {id:"j62",lam:"J6 – Transição esôfago-estômago (HE)",org:"transEE",m:[["1","epEPNQ"],["2","epSC"],["*","transicao"],["seta curta","glCardLP"],["seta longa","glCardSub"],["3","mmDescont"]]},
+ {id:"j64",lam:"J6 – Transição esôfago-estômago (HE)",org:"transEE",m:[["1","epEPNQ"],["2","epSC"],["*","transicao"],["seta curta","glCardLP"],["seta longa","glCardSub"],["3","mmDescont"]]},
+ {id:"j71",lam:"J7 – Estômago, fundo e corpo (HE)",org:"estomago",m:[["A","mucosa"],["B","submucosa"],["C","muscular"],["1","foveola"],["2","epSC"],["3","mm"],["4","lp"],["5","glFund"],["7","obliqua"],["8","circMedia"],["9","longExt"]]},
+ {id:"j72",lam:"J7 – Estômago, fundo e corpo (HE)",org:"estomago",m:[["1","foveola"],["2","epSC"],["3","mm"],["4","lp"],["5","glFund"],["seta grande","principal"],["seta curta","parietal"]]},
+ {id:"j81",lam:"J8 – Transição estômago-duodeno (HE)",org:"transED",m:[["A","estomagoP"],["B","duodenoP"]]},
+ {id:"j82",lam:"J8 – Transição estômago-duodeno (HE)",m:[["1","foveola"],["2","lp"],["3","glPil"],["4","mmCont"],["5","submucSemGl"],["10","mmDescDuod"]]},
+ {id:"j83",lam:"J8 – Duodeno (HE)",org:"duodeno",m:[["C","mucosa"],["D","submucosa"],["E","muscular"],["F","serosa"],["6","absortiva"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["12","brunner"],["13","circInt"],["14","longExt"]]},
+ {id:"j84",lam:"J8 – Duodeno (HE)",org:"duodeno",m:[["6","absortiva"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["12","brunner"]]},
+ {id:"j91",lam:"J9 – Jejuno-íleo (HE)",org:"jejuno",m:[["A","mucosa"],["B","submucosa"],["C","muscular"],["6","absortiva"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["13","circInt"],["14","longExt"]]},
+ {id:"j92",lam:"J9 – Jejuno-íleo (HE)",org:"jejuno",m:[["A","mucosa"],["B","submucosa"],["C","muscular"],["6","absortiva"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["13","circInt"],["14","longExt"]]},
+ {id:"j101",lam:"J10 – Íleo: placa de Peyer (HE)",org:"ileo",m:[["A","mucosa"],["B","submucosa"],["C","muscular"],["D","serosa"],["*","peyer"]]},
+ {id:"j102",lam:"J10 – Íleo: placa de Peyer (HE)",org:"ileo",m:[["6","celM"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["*","peyer"],["13","circInt"],["14","longExt"]]},
+ {id:"j103",lam:"J10 – Íleo: placa de Peyer (HE)",org:"ileo",m:[["6","celM"],["7","caliciforme"],["8","lp"],["9","lieberkuhn"],["11","mmCont"],["*","peyer"],["13","circInt"],["14","longExt"]]},
+ {id:"j111",lam:"J11 – Apêndice vermiforme (HE)",org:"apendice",m:[["1","lieberkuhnA"],["2","nodulos"],["3","mm"],["4","submucosa"],["5","circInt"],["6","longExt"],["7","serosa"]]},
+ {id:"j112",lam:"J11 – Apêndice vermiforme (HE)",org:"apendice",m:[["8","caliciforme"],["1","lieberkuhnA"],["2","nodulos"],["3","mm"],["4","submucosa"],["5","circInt"],["6","longExt"],["seta curta","meso"],["*","submeso"]]},
+ {id:"j133",lam:"J12/J13 – Intestino grosso (HE)",org:"grosso",m:[["8","caliciforme"],["1","lieberkuhnG"],["3","mm"],["2B","noduloSub"],["B","submucosa"],["5","circInt"],["6","longExt"]]},
+ {id:"j134",lam:"J12/J13 – Intestino grosso, serosa (HE)",m:[["seta curta","meso"],["*","submeso"]]},
+ {id:"j141",lam:"J14 – Glândula parótida (HE)",org:"parotida",m:[["*","acinoSeroso"],["A","capsula"],["B","trabecula"]]},
+ {id:"j142",lam:"J14 – Glândula parótida (HE)",m:[["3","excretor"],["4","tcInterlob"],["2","estriado"]]},
+ {id:"j143",lam:"J14 – Glândula parótida (HE)",m:[["*","acinoSeroso"],["1","intercalar"]]},
+ {id:"j144",lam:"J14 – Glândula parótida (HE)",org:"parotida",m:[["1","intercalar"],["2","estriado"]]},
+ {id:"j151",lam:"J15 – Glândula submandibular (HE)",org:"submand",m:[["A","acinoSeroso"],["B","acinoMisto"],["C","capsula"],["D","trabecula"],["3","excretor"]]},
+ {id:"j152",lam:"J15 – Glândula submandibular (HE)",m:[["1","intercalar"],["2","estriado"]]},
+ {id:"j153",lam:"J15 – Glândula submandibular (HE)",org:"submand",m:[]},
+ {id:"j154",lam:"J15 – Glândula submandibular (HE)",m:[["3","excretor"],["4","tcInterlob"],["A","acinoSeroso"],["B","acinoMisto"]]},
+ {id:"j161",lam:"J16 – Glândula sublingual (HE)",org:"subling",m:[["B","capsula"],["C","trabecula"]]},
+ {id:"j162",lam:"J16 – Glândula sublingual (HE)",org:"subling",m:[["A","acinoMisto"],["seta","meiaLua"],["1","intercalar"],["2","estriado"],["3","excretor"],["4","tcInterlob"]]},
+ {id:"j163",lam:"J16 – Glândula sublingual (HE)",org:"subling",m:[["A","acinoMisto"],["seta","meiaLua"],["1","intercalar"],["2","estriado"]]},
+ {id:"j171",lam:"J17 – Pâncreas (HE)",m:[["1","acinoSeroso"],["A","centroacinosa"],["4","intercalarP"]]},
+ {id:"j172",lam:"J17 – Pâncreas (HE)",org:"pancreas",m:[["1","acinoSeroso"],["3","ilhota"],["*","tcP"]]},
+ {id:"j173",lam:"J17 – Pâncreas (HE)",org:"pancreas",m:[["1","acinoSeroso"],["A","centroacinosa"],["3","ilhota"]]},
+ {id:"j174",lam:"J17 – Pâncreas (HE)",m:[["1","acinoSeroso"],["A","centroacinosa"],["B","intralobular"]]},
+ {id:"j175",lam:"J17 – Pâncreas (HE)",org:"pancreas",m:[["1","acinoSeroso"],["*","tcP"],["2","excretorP"]]},
+ {id:"j181",lam:"J18 – Fígado (Mallory)",org:"figado",cor:"mallory",m:[["1","vcl"],["seta longa","hepatocitos"],["seta curta","sinusoide"],["*","tcFig"]]},
+ {id:"j182",lam:"J18 – Fígado, espaço porta (Mallory)",org:"figado",cor:"mallory",m:[["seta longa","hepatocitos"],["*","tcFig"],["2","arteriaHep"],["3","veiaPorta"],["4","ductoBil"],["5","linfatico"]]},
+ {id:"j191",lam:"J19 – Fígado (HE)",org:"figado",cor:"HE",m:[["1","vcl"],["seta longa","hepatocitos"],["seta curta","sinusoide"],["*","tcFig"]]},
+ {id:"j192",lam:"J19 – Fígado (HE)",m:[["1","vcl"],["seta longa","hepatocitos"],["seta curta","sinusoide"]]},
+ {id:"j201",lam:"J20 – Fígado (impregnação por prata)",cor:"prata",m:[["A","retic"],["B","colagenas"],["E","hepatocitosP"]]},
+ {id:"j202",lam:"J20 – Fígado (impregnação por prata)",cor:"prata",m:[["C","vcl"],["área circundada","lobulo"]]},
+ {id:"j211",lam:"J21 – Fígado (coloração vital: nanquim)",cor:"vital",m:[["seta amarela","kupffer"]]},
+ {id:"j212",lam:"J21 – Fígado (coloração vital: carmim)",cor:"vital",m:[["seta","kupffer"]]},
+ {id:"j221",lam:"J22 – Fígado (P.A.S.)",cor:"PAS",m:[]},
+ {id:"j222",lam:"J22 – Fígado (P.A.S.)",cor:"PAS",m:[["seta longa","glicogenio"]]},
+ {id:"j231",lam:"J23 – Vesícula biliar (HE)",org:"vesicula",m:[["7","serosa"],["8","adventicia"],["*","figadoAdj"]]},
+ {id:"j232",lam:"J23 – Vesícula biliar (HE)",org:"vesicula",m:[["1","pseudovilos"],["2","epSC"],["3","lp"],["4","muscVes"],["7","serosa"],["seta longa","meso"],["5","submeso"],["8","adventicia"],["*","figadoAdj"]]},
+ {id:"j233",lam:"J23 – Vesícula biliar (HE)",org:"vesicula",m:[["1","pseudovilos"],["2","epSC"],["3","lp"],["4","muscVes"],["7","serosa"],["5","submeso"],["seta longa","meso"]]}
+];
+// tema de cada imagem pelo prefixo da lâmina
+const TEMA_IMG = id => {
+  const n = +id.slice(1, id.length-1);
+  return n<=3?"Língua":n===4?"Esôfago":n===6?"Transição esôfago-estômago":n===7?"Estômago":
+    n===8?(id==="j83"||id==="j84"?"Duodeno":"Transição estômago-duodeno"):n===9?"Jejuno-íleo":n===10?"Íleo (placa de Peyer)":
+    n===11?"Apêndice":n===13?"Intestino grosso":n===14?"Parótida":n===15?"Submandibular":n===16?"Sublingual":
+    n===17?"Pâncreas":n<=22?"Fígado":"Vesícula biliar";
+};
+
+// Perguntas de teoria: a primeira opção é a correta (embaralhadas na hora). fix = não embaralhar.
+const TEORIA = [
+ ["Língua","Qual papila lingual NÃO possui botões gustativos?",["Filiforme","Fungiforme","Circunvalada","Foliada"],"As filiformes são as mais numerosas, cônicas e queratinizadas. A função delas é mecânica (atrito com o alimento), por isso não têm botões gustativos. Fungiformes, circunvaladas e foliadas têm."],
+ ["Língua","As glândulas de von Ebner desembocam:",["No fundo do sulco que circunda a papila circunvalada","Na ponta das papilas filiformes","Na face ventral da língua","Diretamente nos botões gustativos"],"A secreção delas lava o sulco da papila circunvalada e remove restos de alimento, para que os botões gustativos das paredes do sulco recebam estímulos novos."],
+ ["Língua","Na língua, a mucosa ventral difere da dorsal porque:",["É lisa e fina, sem papilas, com epitélio não queratinizado","Tem mais papilas fungiformes","Concentra os botões gustativos","É revestida por epitélio simples cilíndrico"],"Pense na função: o dorso atrita e prova o alimento (papilas, queratina); a face ventral só precisa ser flexível, por isso é lisa, fina e não queratinizada."],
+ ["Língua","Em pequeno aumento você vê uma papila grande que NÃO ultrapassa a superfície, cercada por um sulco profundo e com glândulas embaixo. É:",["Papila circunvalada","Papila fungiforme","Papila filiforme","Botão gustativo isolado"],"Sulco em volta + glândulas de von Ebner por baixo + tamanho grande caracterizam a papila circunvalada (valada), que fica no V lingual."],
+ ["Língua","O que permite reconhecer a língua mesmo sem ver as papilas?",["Músculo estriado esquelético em feixes que se cruzam em várias direções","Músculo liso em duas camadas","Cartilagem hialina","Glândulas de Brünner"],"A língua é praticamente um bloco de músculo esquelético com feixes em três planos. Nenhum outro órgão do sistema digestório tem isso."],
+ ["Esôfago","Qual combinação identifica o esôfago numa lâmina do tubo digestivo?",["Epitélio estratificado pavimentoso não queratinizado + glândulas mucosas na submucosa","Vilos + células caliciformes","Fovéolas + células parietais","Glândulas de Brünner na submucosa"],"O epitélio estratificado pavimentoso descarta estômago e intestinos. As glândulas mucosas na submucosa confirmam o esôfago."],
+ ["Esôfago","As glândulas esofágicas (ácinos mucosos) ficam em qual camada?",["Submucosa","Lâmina própria","Muscular externa","Serosa"],"No atlas (J4/J5) os ácinos mucosos estão abaixo da muscular da mucosa, ou seja, na submucosa. É um dos poucos órgãos do tubo com glândulas na submucosa (o outro é o duodeno)."],
+ ["Transição esôfago-estômago","Na transição esôfago-estômago o epitélio muda de:",["Estratificado pavimentoso não queratinizado para simples cilíndrico","Simples cilíndrico para pseudoestratificado","Estratificado queratinizado para simples cúbico","Simples pavimentoso para estratificado cúbico"],"O esôfago precisa resistir ao atrito (epitélio estratificado pavimentoso); o estômago secreta muco protetor (epitélio simples cilíndrico). A troca é abrupta."],
+ ["Transição esôfago-estômago","O espessamento das camadas musculares na junção esôfago-estômago forma:",["O esfíncter cárdico (esofágico inferior)","O esfíncter pilórico","A válvula ileocecal","O esfíncter anal interno"],"Cárdia = entrada do estômago, logo esfíncter cárdico. O pilórico fica na saída (estômago-duodeno)."],
+ ["Transição esôfago-estômago","Como aparece a muscular da mucosa na lâmina J6?",["Descontínua","Contínua e espessa","Ausente","Formada por músculo esquelético"],"No atlas a muscular da mucosa da transição aparece em feixes interrompidos (descontínua)."],
+ ["Estômago","As células parietais (oxínticas) aparecem no HE como:",["Células grandes, arredondadas e bem acidófilas (rosadas)","Células basófilas na base da glândula","Células claras cheias de muco","Células achatadas no centro do ácino"],"Elas têm muitas mitocôndrias (bombas de prótons gastam muita energia para produzir HCl), e mitocôndrias coram com eosina, por isso ficam rosadas."],
+ ["Estômago","Por que as células principais (zimogênicas) são basófilas?",["Têm muito retículo endoplasmático rugoso para sintetizar pepsinogênio","Têm muitas mitocôndrias","Acumulam muco","Acumulam glicogênio"],"RER = muitos ribossomos = muito RNA, que é ácido e se liga à hematoxilina (básica). Célula que produz proteína para exportar = basófila."],
+ ["Estômago","A muscular externa do estômago (fundo/corpo) tem:",["Três camadas: oblíqua interna, circular média e longitudinal externa","Duas camadas: circular interna e longitudinal externa","Uma camada circular","Músculo esquelético e liso misturados"],"A camada oblíqua extra é exclusiva do estômago e ajuda a misturar e triturar o conteúdo."],
+ ["Estômago","O que diferencia a região fúndica da pilórica?",["Fúndica: fovéolas rasas e glândulas longas com parietais e principais; pilórica: fovéolas profundas e glândulas mucosas curtas","Fúndica tem vilos e pilórica não","Pilórica tem células parietais abundantes","Não há diferença histológica"],"Compare a proporção fovéola/glândula: no fundo a glândula é a parte maior (produz ácido e enzima); no piloro a fovéola é profunda e as glândulas são mucosas."],
+ ["Estômago","Na lâmina J7, a submucosa do estômago contém:",["Tecido conjuntivo sem glândulas","Glândulas mucosas","Glândulas de Brünner","Placas de Peyer"],"O atlas destaca a ausência de glândulas na submucosa gástrica. As glândulas do estômago ficam todas na lâmina própria."],
+ ["Transição estômago-duodeno","Na transição estômago-duodeno, a estrutura que separa os dois lados é:",["O esfíncter pilórico (espessamento da camada circular)","O esfíncter cárdico","A válvula ileocecal","A papila duodenal"],"Piloro = saída do estômago. A camada circular da muscular fica muito espessa e forma o esfíncter pilórico."],
+ ["Transição estômago-duodeno","Que achado mostra que o lado B da lâmina J8 já é duodeno?",["Vilos e glândulas de Brünner na submucosa","Fovéolas gástricas profundas","Glândulas pilóricas na lâmina própria","Epitélio estratificado pavimentoso"],"Vilos indicam intestino delgado e Brünner indica duodeno. Fovéolas e glândulas pilóricas são do lado gástrico."],
+ ["Duodeno","As glândulas de Brünner são exclusivas de:",["Duodeno","Jejuno","Íleo","Cólon"],"É o marcador clássico do duodeno: vilos + glândulas mucosas na submucosa."],
+ ["Duodeno","Em qual camada ficam as glândulas de Brünner?",["Submucosa","Lâmina própria","Muscular externa","Serosa"],"Elas ficam abaixo da muscular da mucosa (submucosa). As criptas de Lieberkühn, ao contrário, ficam na lâmina própria."],
+ ["Duodeno","Qual a função da secreção das glândulas de Brünner?",["Muco alcalino (bicarbonato) que neutraliza o quimo ácido","Enzimas digestivas pancreáticas","Ácido clorídrico","Bile"],"O quimo chega do estômago muito ácido. O duodeno precisa se proteger e elevar o pH para as enzimas pancreáticas funcionarem."],
+ ["Jejuno-íleo","Lâmina de intestino com vilos, submucosa sem glândulas e sem grandes agregados linfáticos. Mais provável:",["Jejuno","Duodeno","Íleo com placa de Peyer","Intestino grosso"],"Vilos = delgado. Sem Brünner descarta duodeno; sem Peyer descarta íleo típico. Sobra o jejuno."],
+ ["Jejuno-íleo","As glândulas (criptas) de Lieberkühn ficam:",["Na lâmina própria, entre a base dos vilos e a muscular da mucosa","Na submucosa","Na muscular externa","Na serosa"],"São invaginações do epitélio na lâmina própria. Por isso pertencem à mucosa e não passam da muscular da mucosa."],
+ ["Jejuno-íleo","Por que as células caliciformes aparecem claras no HE?",["O muco se perde ou cora mal no processamento, deixando o ápice vazio","São intensamente basófilas","Acumulam glicogênio","Estão em apoptose"],"O muco é um carboidrato hidrofílico que a HE quase não cora, por isso o cálice fica branco. No PAS ele ficaria magenta."],
+ ["Íleo (placa de Peyer)","As placas de Peyer são características de qual segmento?",["Íleo","Duodeno","Jejuno","Estômago"],"Agregados grandes de nódulos linfáticos na mucosa/submucosa são a marca do íleo, a região com mais contato com antígenos e bactérias."],
+ ["Íleo (placa de Peyer)","Qual a função das células M sobre as placas de Peyer?",["Captar antígenos da luz e entregá-los às células imunes","Secretar muco","Absorver lipídios","Produzir lisozima"],"M de 'microfold': transportam antígenos por transcitose até os linfócitos e macrófagos da placa de Peyer, iniciando a resposta imune."],
+ ["Íleo (placa de Peyer)","Em qual camada a placa de Peyer chega a invadir no íleo?",["Submucosa","Muscular externa","Serosa","Somente o epitélio"],"Os nódulos começam na lâmina própria mas são tão grandes que atravessam a muscular da mucosa e ocupam a submucosa (asteriscos da J10)."],
+ ["Apêndice","Qual conjunto identifica o apêndice?",["Luz pequena e irregular, poucas glândulas e muitos nódulos linfáticos em toda a volta","Vilos longos e glândulas de Brünner","Muitas glândulas retas e paralelas sem nódulos","Fovéolas e células parietais"],"O apêndice parece um intestino grosso 'em miniatura' tomado por tecido linfoide: poucas glândulas, muitos nódulos, sem vilos."],
+ ["Apêndice","Verdadeiro ou falso: o apêndice possui vilos como o intestino delgado.",["Falso","Verdadeiro"],"Falso. O apêndice tem mucosa do tipo intestino grosso, sem vilos, só com glândulas de Lieberkühn (poucas)."],
+ ["Intestino grosso","Qual achado diferencia o intestino grosso do delgado?",["Ausência de vilos, com glândulas retas e cheias de caliciformes","Presença de glândulas de Brünner","Presença de células parietais","Epitélio estratificado"],"O grosso absorve água e lubrifica o conteúdo: sem vilos, com glândulas longas, paralelas e cheias de células caliciformes."],
+ ["Intestino grosso","Por que há tantas células caliciformes no intestino grosso?",["O muco lubrifica o conteúdo, que fica cada vez mais sólido","Para produzir enzimas digestivas","Para secretar HCl","Para absorver gordura"],"À medida que a água é absorvida o bolo fecal endurece. O muco das caliciformes facilita o deslizamento e protege o epitélio."],
+ ["Intestino grosso","Verdadeiro ou falso: o intestino grosso possui vilos intestinais.",["Falso","Verdadeiro"],"Falso. Na J12/J13 a superfície é plana, só com as aberturas das glândulas de Lieberkühn. Vilos são do intestino delgado."],
+ ["Parótida","Qual glândula salivar é serosa pura?",["Parótida","Submandibular","Sublingual","Glândulas de von Ebner"],"No atlas: parótida = 'ácinos serosos (glândula serosa pura)'. Submandibular e sublingual são mistas."],
+ ["Sublingual","Glândula salivar mista com predomínio MUCOSO:",["Sublingual","Submandibular","Parótida","Pâncreas"],"Na sublingual o campo é dominado por ácinos claros (mucosos) com meias-luas serosas."],
+ ["Submandibular","Glândula salivar mista com predomínio SEROSO:",["Submandibular","Sublingual","Parótida","Pâncreas"],"A submandibular tem muitos ácinos serosos escuros, com alguns ácinos mucosos claros (com meia-lua) espalhados."],
+ ["Sublingual","O que é a meia-lua serosa?",["Células serosas em crescente na extremidade de um ácino mucoso","Um ducto intercalar cortado obliquamente","Uma célula mioepitelial","Um ácino seroso isolado"],"São células serosas empurradas para a periferia pelo muco acumulado, formando um 'capuz' escuro sobre o ácino claro."],
+ ["Geral","Como diferenciar ácino seroso de ácino mucoso no HE?",["Seroso: citoplasma corado e núcleo redondo basal; mucoso: citoplasma claro e espumoso com núcleo achatado na base","Seroso é claro e mucoso é escuro","Seroso tem núcleo achatado e mucoso, redondo","Não dá para diferenciar no HE"],"Grânulos de zimogênio (proteína) coram; muco quase não cora no HE. Por isso o seroso é escuro e o mucoso, claro, com o núcleo empurrado e achatado na base."],
+ ["Parótida","Por que o ducto estriado tem 'estrias' basais?",["Dobras da membrana basal com muitas mitocôndrias, para o transporte de íons","Cílios na base da célula","Fibras musculares lisas","Grânulos de muco"],"O ducto estriado modifica a saliva (reabsorve Na+ e secreta K+), o que gasta muita energia. As mitocôndrias alinhadas entre as dobras da membrana dão o aspecto estriado e acidófilo."],
+ ["Parótida","Qual o epitélio do ducto intercalar das glândulas salivares?",["Simples cúbico","Estratificado cilíndrico","Simples pavimentoso","Pseudoestratificado ciliado"],"Ducto intercalar: o menor e mais próximo do ácino, de epitélio simples cúbico baixo."],
+ ["Submandibular","No atlas, o ducto excretor (interlobular) das salivares tem epitélio:",["Estratificado cilíndrico, envolto por conjuntivo interlobular","Simples cúbico","Simples pavimentoso","Estratificado pavimentoso queratinizado"],"Quanto maior e mais distante do ácino, mais espesso o epitélio do ducto. O excretor fica no septo, cercado de conjuntivo."],
+ ["Pâncreas","Parótida × pâncreas exócrino: o que só o pâncreas tem?",["Ilhotas de Langerhans e células centroacinosas","Ácinos serosos","Ductos intercalares","Cápsula de conjuntivo"],"As duas têm ácinos serosos. Ilhotas e centroacinosas só existem no pâncreas, e o pâncreas não tem ductos estriados."],
+ ["Pâncreas","As células centroacinosas são:",["O início do ducto intercalar dentro do ácino","Células endócrinas","Células mioepiteliais","Macrófagos"],"O ducto intercalar 'invade' o ácino, e suas primeiras células ficam no centro dele. Por isso são claras e achatadas, no meio das células serosas."],
+ ["Pâncreas","Qual ducto NÃO existe no pâncreas?",["Ducto estriado","Ducto intercalar","Ducto intralobular","Ducto excretor"],"O atlas destaca: 'Ducto estriado (não existe no órgão)'. Isso ajuda a diferenciar o pâncreas da parótida."],
+ ["Pâncreas","No HE, as ilhotas de Langerhans aparecem como:",["Agrupamentos mais claros de células, cercados por ácinos mais corados","Ácinos escuros com luz grande","Ductos com epitélio estratificado","Nódulos linfáticos roxos"],"As células endócrinas têm menos RER e grânulos menores, por isso coram menos que os ácinos ao redor e formam 'ilhas' pálidas com capilares."],
+ ["Fígado","O que fica no centro do lóbulo hepático clássico?",["Veia centrolobular","Espaço porta","Ducto bilífero","Ramo da artéria hepática"],"O lóbulo clássico é centrado na veia centrolobular (drenagem). O espaço porta fica nos ângulos da periferia."],
+ ["Fígado","O espaço porta contém:",["Ramo da artéria hepática, ramo da veia porta e ducto bilífero (mais vaso linfático)","Apenas a veia centrolobular","Sinusoides e células de Kupffer","Ilhotas de Langerhans"],"Tríade portal: artéria (parede espessa), veia (luz ampla) e ducto bilífero (epitélio cúbico), além do linfático (J18)."],
+ ["Fígado","Em que sentido correm o sangue e a bile no lóbulo hepático?",["Sangue da periferia para o centro; bile do centro para a periferia","Os dois do centro para a periferia","Os dois da periferia para o centro","Sangue do centro para a periferia; bile da periferia para o centro"],"O sangue entra pelo espaço porta, passa pelos sinusoides e sai pela veia centrolobular. A bile vai pelos canalículos no sentido oposto, até o ducto bilífero do espaço porta."],
+ ["Fígado","Na impregnação por prata, como aparecem as fibras reticulares?",["Negras e delgadas","Castanhas e espessas","Azuis","Magenta"],"Fibras reticulares (colágeno III) são argirófilas: a prata as deixa negras e finas. As colágenas ficam castanhas e grossas."],
+ ["Fígado","Por que as células de Kupffer aparecem marcadas na coloração vital?",["Elas fagocitam o corante (nanquim ou carmim) injetado no animal vivo","São ricas em glicogênio","Têm muitas mitocôndrias","Produzem bile"],"Coloração vital marca as células fagocíticas. Kupffer são macrófagos dos sinusoides e acumulam as partículas do corante."],
+ ["Fígado","A reação de PAS no fígado (J22) evidencia:",["Glicogênio no citoplasma dos hepatócitos","Fibras reticulares","Células de Kupffer","Gotículas de gordura"],"PAS cora carboidratos (glicogênio, muco) em magenta. O hepatócito armazena glicogênio, por isso aparecem grânulos magenta."],
+ ["Fígado","Na lâmina corada por Mallory (J18), o tecido conjuntivo interlobular aparece:",["Azul/azul-esverdeado","Negro","Magenta","Amarelo"],"No tricrômico de Mallory o colágeno cora em azul, contrastando com o parênquima avermelhado."],
+ ["Fígado","O que são os sinusoides hepáticos?",["Capilares de luz irregular entre os cordões de hepatócitos","Ductos que levam bile","Vasos linfáticos","Ramos da artéria hepática no espaço porta"],"São capilares especiais (descontínuos, fenestrados) por onde o sangue misto (porta + arterial) corre até a veia centrolobular. As células de Kupffer ficam neles."],
+ ["Vesícula biliar","Quais camadas a vesícula biliar NÃO possui?",["Muscular da mucosa e submucosa","Mucosa e serosa","Epitélio e lâmina própria","Camada muscular"],"Na vesícula a lâmina própria fica direto sobre a camada muscular, sem muscular da mucosa e sem submucosa. É uma pista diagnóstica importante."],
+ ["Vesícula biliar","Qual o epitélio da vesícula biliar?",["Simples cilíndrico","Estratificado pavimentoso","Pseudoestratificado ciliado","Simples pavimentoso"],"Epitélio simples cilíndrico absortivo, que concentra a bile retirando água e íons."],
+ ["Vesícula biliar","Na vesícula, a face aderida ao fígado é revestida por:",["Adventícia","Serosa","Mesotélio","Muscular da mucosa"],"A parte livre, voltada para a cavidade, tem serosa (com mesotélio). A parte colada ao fígado tem adventícia (só conjuntivo)."],
+ ["Vesícula biliar","Os pseudovilos da vesícula são:",["Pregas da mucosa (epitélio + lâmina própria)","Vilos verdadeiros com lácteo central","Glândulas de Lieberkühn","Papilas como as da língua"],"Lembram vilos no corte, mas são só pregas da mucosa que se desfazem quando a vesícula enche."],
+ ["Geral","Diferença entre serosa e adventícia:",["Serosa tem mesotélio cobrindo o conjuntivo; adventícia é só conjuntivo que se funde aos órgãos vizinhos","Adventícia tem mesotélio e serosa não","Serosa é muscular","Não há diferença"],"Órgão voltado para cavidade = serosa (mesotélio + submesotelial). Órgão fixo/retroperitoneal ou aderido = adventícia."],
+ ["Geral","O mesotélio é um epitélio:",["Simples pavimentoso","Simples cúbico","Estratificado pavimentoso","Simples cilíndrico"],"Uma camada de células achatadas, com núcleos alongados na superfície da serosa (J13 – seta curta)."],
+ ["Geral","A ordem das camadas do tubo digestivo, da luz para fora, é:",["Mucosa, submucosa, muscular, serosa/adventícia","Submucosa, mucosa, muscular, serosa","Mucosa, muscular, submucosa, serosa","Serosa, muscular, submucosa, mucosa"],"Pense de dentro para fora: o epitélio está na luz (mucosa), depois o conjuntivo de sustentação (submucosa), o motor (muscular) e o revestimento externo."],
+ ["Geral","Em quais órgãos do tubo digestivo aparecem glândulas na SUBMUCOSA?",["Esôfago e duodeno","Estômago e cólon","Jejuno e íleo","Apêndice e estômago"],"Esôfago (glândulas esofágicas mucosas) e duodeno (Brünner). Ver glândula na submucosa já reduz a dúvida a esses dois; o epitélio decide qual."],
+ ["Geral","A muscular da mucosa marca o limite entre:",["Lâmina própria e submucosa","Submucosa e muscular externa","Epitélio e lâmina própria","Muscular externa e serosa"],"Tudo que fica acima dela é mucosa; o que fica abaixo é submucosa. Use-a para decidir em que camada está uma glândula."]
+];
+
+/* ===================== LÓGICA ===================== */
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]} return a; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const markTxt = m => /^\d/.test(m)?`o número ${m}`:/^[A-Z]$/.test(m)?`a letra ${m}`:m==="*"?"o asterisco (*)":m==="área circundada"?"a área circundada":`a ${m}`;
+const markOpt = m => /^\d|^[A-Z]$/.test(m)?`Marcação ${m}`:m==="*"?"Asterisco (*)":m[0].toUpperCase()+m.slice(1);
+
+function buildPool(){
+  const pool=[]; const allS=Object.keys(S);
+  for(const im of IMGS){
+    const tema=TEMA_IMG(im.id);
+    if(im.org){
+      const o=ORG[im.org];
+      const fam=shuffle(Object.keys(ORG).filter(k=>k!==im.org&&ORG[k].f===o.f).map(k=>ORG[k].n));
+      const outros=shuffle(Object.keys(ORG).filter(k=>ORG[k].f!==o.f).map(k=>ORG[k].n));
+      pool.push({tipo:"lamina",tema:o.t,img:im.id,q:"Qual órgão/lâmina está nesta imagem?",ok:o.n,
+        dis:()=>[...shuffle(fam).slice(0,2),...shuffle(outros)].slice(0,3),exp:o.e,lam:im.lam});
+    }
+    if(im.cor){
+      const c=COR[im.cor];
+      pool.push({tipo:"coloracao",tema,img:im.id,cap:"Fígado",q:"Qual técnica de coloração foi usada nesta lâmina?",ok:c.n,
+        dis:()=>shuffle(Object.keys(COR).filter(k=>k!==im.cor).map(k=>COR[k].n)).slice(0,3),exp:c.e,lam:im.lam});
+    }
+    const mk=im.m;
+    for(const [m,k] of mk){
+      const same=mk.filter(x=>S[x[1]][0]!==S[k][0]).map(x=>S[x[1]][0]);
+      pool.push({tipo:"estrutura",tema,img:im.id,cap:im.lam,q:`O que indica ${markTxt(m)}?`,ok:S[k][0],
+        dis:()=>{const out=new Set(shuffle(same).slice(0,2));
+          for(const x of shuffle(allS)){if(out.size>=3)break; const n=S[x][0]; if(n!==S[k][0]) out.add(n);} return [...out];},
+        exp:S[k][1],lam:im.lam});
+      const outrasMarcas=[...new Set(mk.filter(x=>x[0]!==m&&S[x[1]][0]!==S[k][0]).map(x=>x[0]))];
+      if(outrasMarcas.length>=2)
+        pool.push({tipo:"localizar",tema,img:im.id,cap:im.lam,q:`Qual marcação indica: ${S[k][0]}?`,ok:markOpt(m),
+          dis:()=>shuffle(outrasMarcas).slice(0,3).map(markOpt),exp:S[k][1],lam:im.lam});
+    }
+  }
+  for(const [tema,q,opts,exp] of TEORIA)
+    pool.push({tipo:"teoria",tema,q,ok:opts[0],dis:()=>opts.slice(1),exp,fix:opts.length===2});
+  return pool;
+}
+const POOL=buildPool();
+
+// Seleção variada: alterna temas e tipos e evita repetir imagem em sequência
+function pickRound(temas,n){
+  const byTema={};
+  for(const q of shuffle(POOL.filter(q=>temas.has(q.tema)))){
+    (byTema[q.tema] ||= {}); (byTema[q.tema][q.tipo] ||= []).push(q);
+  }
+  const queues=Object.values(byTema).map(tipos=>{
+    const lists=shuffle(Object.values(tipos)); const out=[];
+    while(lists.some(l=>l.length)) for(const l of lists) if(l.length) out.push(l.shift());
+    return out;
+  });
+  const sel=[]; const usedImg={};
+  while(sel.length<n && queues.some(q=>q.length)){
+    for(const q of shuffle(queues)){
+      if(sel.length>=n||!q.length) continue;
+      let i=q.findIndex(x=>!x.img||(usedImg[x.img]||0)<2); if(i<0) i=0;
+      const it=q.splice(i,1)[0]; if(it.img) usedImg[it.img]=(usedImg[it.img]||0)+1; sel.push(it);
+    }
+  }
+  const out=shuffle(sel);
+  for(let i=1;i<out.length;i++) if(out[i].img&&out[i].img===out[i-1].img){const j=(i+2)%out.length;[out[i],out[j]]=[out[j],out[i]];}
+  return out;
+}
+
+let st={};
+const HKEY="quizHistoDigestorio";
+const hist=()=>{try{return JSON.parse(localStorage.getItem(HKEY))||[]}catch{return[]}};
+
+function home(){
+  const temas=TEMAS.filter(t=>POOL.some(q=>q.tema===t));
+  const h=hist();
+  const media=h.length?Math.round(h.reduce((a,b)=>a+b.pct,0)/h.length):null;
+  app.innerHTML=`
+    <h2>Monte seu treino</h2>
+    <p class="small">${POOL.length} questões no banco: lâminas com marcações (o que é? onde está?), reconhecimento do órgão, técnicas de coloração e teoria. Cada rodada sorteia uma combinação diferente.</p>
+    ${media!==null?`<p class="stat">Sua média até agora: <b>${media}%</b> em ${h.length} tentativa${h.length>1?"s":""}.</p>`:""}
+    <h3>Temas <button class="btn ghost" id="all" type="button">marcar/desmarcar todos</button></h3>
+    <div class="chips" id="temas">${temas.map(t=>`<button type="button" class="chip" aria-pressed="true" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+    <h3>Quantidade de questões</h3>
+    <div class="chips" id="qtd">${[10,20,30,50].map(n=>`<button type="button" class="chip" aria-pressed="${n===20}" data-n="${n}">${n}</button>`).join("")}</div>
+    <div class="row" style="margin-top:22px"><button class="btn" id="go" type="button">Começar</button>
+    ${h.length?`<button class="btn ghost" id="reset" type="button">apagar histórico</button>`:""}</div>`;
+  app.querySelectorAll("#temas .chip").forEach(b=>b.onclick=()=>{b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");upd()});
+  app.querySelectorAll("#qtd .chip").forEach(b=>b.onclick=()=>{app.querySelectorAll("#qtd .chip").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true")});
+  $("#all").onclick=()=>{const bs=[...app.querySelectorAll("#temas .chip")];const on=bs.some(b=>b.getAttribute("aria-pressed")!=="true");bs.forEach(b=>b.setAttribute("aria-pressed",on));upd()};
+  if($("#reset")) $("#reset").onclick=()=>{localStorage.removeItem(HKEY);home()};
+  const upd=()=>{$("#go").disabled=!app.querySelector('#temas .chip[aria-pressed="true"]')};
+  $("#go").onclick=()=>{
+    const temasSel=new Set([...app.querySelectorAll('#temas .chip[aria-pressed="true"]')].map(b=>b.dataset.t));
+    const n=+app.querySelector('#qtd .chip[aria-pressed="true"]').dataset.n;
+    start(pickRound(temasSel,n));
+  };
+}
+
+function start(qs){
+  st={qs:qs.map(q=>({...q,opts:q.fix?[q.ok,...q.dis()]:shuffle([q.ok,...q.dis()])})),i:0,res:[]};
+  show();
+}
+
+function show(){
+  const q=st.qs[st.i], n=st.qs.length;
+  app.innerHTML=`
+    <div class="meta"><span>Questão ${st.i+1} de ${n}</span><span>${st.res.filter(r=>r.ok).length} acerto(s)</span></div>
+    <div class="progress"><i style="width:${st.i/n*100}%"></i></div>
+    ${q.tipo==="lamina"?"":`<span class="tag">${esc(q.tema)}</span>`}<span class="tag t2">${TIPOS[q.tipo]}</span>
+    ${q.img?`<div class="figure" id="fig"><img src="img/${q.img}.jpg" alt="Lâmina histológica para a questão"><span class="hint">toque para ampliar</span></div>`:""}
+    ${q.cap?`<p class="caption">${esc(q.cap)}</p>`:""}
+    <p class="q">${esc(q.q)}</p>
+    <div class="opts">${q.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}"><span class="k">${i+1}</span><span>${esc(o)}</span></button>`).join("")}</div>
+    <div id="fb"></div>`;
+  if(q.img) $("#fig").onclick=()=>zoom(`img/${q.img}.jpg`);
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  app.querySelector(".opt").focus({preventScroll:true});
+}
+
+function answer(i){
+  const q=st.qs[st.i]; if(st.res[st.i]) return;
+  const ok=q.opts[i]===q.ok; st.res[st.i]={ok,escolha:q.opts[i]};
+  app.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true; if(q.opts[j]===q.ok) b.classList.add("ok"); else if(j===i) b.classList.add("bad");});
+  const last=st.i===st.qs.length-1;
+  $("#fb").innerHTML=`
+    <div class="feedback ${ok?"ok":"bad"}">
+      <b class="t">${ok?"Acertou!":"Não foi dessa vez."} Resposta: ${esc(q.ok)}</b>
+      <div class="raciocinio"><strong>Raciocínio:</strong> ${esc(q.exp)}${q.lam?`<br><span class="small">Lâmina: ${esc(q.lam)}</span>`:""}</div>
+    </div>
+    <div class="next"><button class="btn" id="nx" type="button">${last?"Ver resultado":"Próxima"} →</button></div>`;
+  $("#nx").onclick=()=>{ if(last) end(); else { st.i++; show(); } };
+  $("#nx").focus({preventScroll:true});
+}
+
+function end(){
+  const n=st.qs.length, ac=st.res.filter(r=>r.ok).length, pct=Math.round(ac/n*100);
+  const h=hist(); h.push({pct,n,d:Date.now()}); localStorage.setItem(HKEY,JSON.stringify(h.slice(-100)));
+  const media=Math.round(h.reduce((a,b)=>a+b.pct,0)/h.length);
+  const agrupa=key=>{const g={};st.qs.forEach((q,i)=>{const k=key(q);(g[k] ||= {t:0,a:0});g[k].t++;if(st.res[i].ok)g[k].a++;});
+    return Object.entries(g).map(([k,v])=>({k,...v,p:Math.round(v.a/v.t*100)})).sort((a,b)=>a.p-b.p||b.t-a.t);};
+  const porTema=agrupa(q=>q.tema), porTipo=agrupa(q=>TIPOS[q.tipo]);
+  const cor=p=>p>=80?"var(--ok)":p>=60?"#d4a017":"var(--bad)";
+  const barras=l=>`<div class="bars">${l.map(x=>`<div class="bar"><span>${esc(x.k)}</span><span class="tr"><i style="width:${x.p}%;background:${cor(x.p)}"></i></span><span class="v">${x.a}/${x.t}</span></div>`).join("")}</div>`;
+  const fracos=porTema.filter(x=>x.p<70);
+  const tipoFraco=porTipo.filter(x=>x.p<70);
+  const erros=st.qs.map((q,i)=>({q,r:st.res[i]})).filter(x=>!x.r.ok);
+  const msg=pct>=90?"Excelente, está pronto(a) para a prova!":pct>=70?"Bom resultado! Revise os pontos fracos abaixo.":pct>=50?"Dá para melhorar: foque nos temas em vermelho.":"Vale revisar as lâminas no atlas e refazer o quiz.";
+  app.innerHTML=`
+    <h2>Resultado</h2>
+    <div class="score">
+      <div class="ring" style="--p:${pct}"><span>${pct}%</span></div>
+      <div class="stat"><b>${ac} de ${n}</b> acertos nesta rodada<br>Média de todas as tentativas: <b>${media}%</b> (${h.length})<br><span class="small">${msg}</span></div>
+    </div>
+    <h3>Pontos fracos</h3>
+    ${fracos.length||tipoFraco.length?`<div class="weak">
+      ${fracos.length?`<b>Temas para revisar:</b> ${fracos.map(x=>`${esc(x.k)} (${x.p}%)`).join(", ")}.<br>`:""}
+      ${tipoFraco.length?`<b>Tipo de questão com mais erros:</b> ${tipoFraco.map(x=>`${esc(x.k)} (${x.p}%)`).join(", ")}.`:""}
+    </div>`:`<p class="small">Nenhum tema abaixo de 70%. Muito bem!</p>`}
+    <h3>Desempenho por tema</h3>${barras(porTema)}
+    <h3>Desempenho por tipo de questão</h3>${barras(porTipo)}
+    ${erros.length?`<h3>Revise seus erros (${erros.length})</h3>${erros.map(({q,r})=>`
+      <details class="err"><summary>${esc(q.tema)} · ${esc(q.q)}</summary>
+        ${q.img?`<img src="img/${q.img}.jpg" alt="Lâmina da questão" loading="lazy">`:""}
+        <p>Você marcou: <b style="color:var(--bad)">${esc(r.escolha)}</b><br>Correta: <b style="color:var(--ok)">${esc(q.ok)}</b></p>
+        <p class="raciocinio"><strong>Raciocínio:</strong> ${esc(q.exp)}${q.lam?`<br><span class="small">Lâmina: ${esc(q.lam)}</span>`:""}</p>
+      </details>`).join("")}`:""}
+    <div class="row" style="margin-top:22px">
+      ${erros.length?`<button class="btn" id="redo" type="button">Refazer só os erros</button>`:""}
+      <button class="btn sec" id="novo" type="button">Novo quiz</button>
+    </div>`;
+  if(erros.length) $("#redo").onclick=()=>start(shuffle(erros.map(e=>e.q)));
+  $("#novo").onclick=home;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+const zEl=$("#zoom");
+function zoom(src){zEl.querySelector("img").src=src;zEl.classList.add("on")}
+zEl.onclick=()=>zEl.classList.remove("on");
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){zEl.classList.remove("on");return}
+  const k=+e.key; const opts=app.querySelectorAll(".opt:not(:disabled)");
+  if(k>=1&&k<=opts.length) opts[k-1].click();
+});
+
+// autoteste: toda questão tem a resposta certa entre as opções e não repete opções
+for(const q of POOL){const o=[q.ok,...q.dis()]; console.assert(o.length>=2&&new Set(o).size===o.length,"questão com opções inválidas",q.q,q.img);}
+
+home();
+</script>
+</body>
+</html>
