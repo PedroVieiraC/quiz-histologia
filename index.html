@@ -26,6 +26,8 @@ h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}
 .chip[aria-pressed="true"]{background:var(--hema);border-color:var(--hema);color:#fff}
+#aleatorio[aria-pressed="true"]{background:var(--eosin);border-color:var(--eosin)}
+.chip:disabled{cursor:not-allowed}
 .chip:focus-visible,.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--eosin);outline-offset:2px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;background:var(--eosin);color:#fff}
@@ -97,7 +99,69 @@ footer a{color:var(--hema)}
 /* ===================== DADOS ===================== */
 const TEMAS = ["Língua","Esôfago","Transição esôfago-estômago","Estômago","Transição estômago-duodeno","Duodeno","Jejuno-íleo","Íleo (placa de Peyer)","Apêndice","Intestino grosso","Parótida","Submandibular","Sublingual","Pâncreas","Fígado","Vesícula biliar","Geral"];
 
-const TIPOS = {estrutura:"Identificar estrutura", localizar:"Localizar estrutura", lamina:"Reconhecer a lâmina", coloracao:"Técnica de coloração", teoria:"Teoria e raciocínio"};
+const TIPOS = {estrutura:"Nome da estrutura indicada", camada:"Camada da estrutura indicada", funcao:"Função da estrutura indicada", localizar:"Qual marcação é a estrutura", lamina:"Reconhecer a lâmina", coloracao:"Técnica de coloração", teoria:"Teoria e raciocínio"};
+const TIPOS_PADRAO = ["estrutura","camada","funcao"];
+
+// Camada em que fica cada estrutura (só onde a resposta é inequívoca)
+const CAMADAS = ["Mucosa – epitélio","Mucosa – lâmina própria","Mucosa – muscular da mucosa","Submucosa","Muscular externa","Serosa"];
+const CAMADA = {
+  epEPNQ:0,epSC:0,transicao:0,foveola:0,absortiva:0,caliciforme:0,celM:0,
+  lp:1,glCardLP:1,glFund:1,principal:1,parietal:1,glPil:1,lieberkuhn:1,lieberkuhnG:1,lieberkuhnA:1,
+  mm:2,mmDescont:2,mmCont:2,mmDescDuod:2,
+  glEsof:3,tcVasos:3,glCardSub:3,submucSemGl:3,brunner:3,noduloSub:3,
+  circInt:4,longExt:4,esfCard:4,obliqua:4,circMedia:4,
+  meso:5,submeso:5
+};
+const REGRA_CAMADA = "Regra: tudo acima da muscular da mucosa é mucosa (epitélio + lâmina própria); entre ela e a muscular externa é submucosa; por fora da muscular externa fica a serosa (mesotélio + submesotelial).";
+
+// Função de cada estrutura
+const FUNC = {
+  fung:"Contém botões gustativos (gustação)",
+  filif:"Atrito mecânico com o alimento, sem botões gustativos",
+  queratina:"Proteger o epitélio contra o atrito",
+  mEsq:"Movimentos voluntários da língua (mastigação, deglutição, fala)",
+  botao:"Percepção do paladar (quimiorrecepção)",
+  vonEbner:"Lavar o sulco da papila circunvalada, renovando os estímulos gustativos",
+  glEsof:"Secretar muco que lubrifica a passagem do bolo alimentar",
+  glCardSub:"Secretar muco que protege a junção contra o refluxo ácido",
+  esfCard:"Impedir o refluxo do conteúdo gástrico para o esôfago",
+  mm:"Movimentar a mucosa localmente e ajudar a esvaziar as glândulas",
+  mmCont:"Movimentar a mucosa localmente e ajudar a esvaziar as glândulas",
+  foveola:"Receber a secreção das glândulas; seu epitélio forma a barreira de muco contra o ácido",
+  parietal:"Produzir HCl e fator intrínseco",
+  principal:"Produzir pepsinogênio",
+  glPil:"Secretar muco protetor na região pilórica",
+  brunner:"Secretar muco alcalino (bicarbonato) que neutraliza o quimo ácido",
+  absortiva:"Absorver nutrientes pela borda em escova",
+  caliciforme:"Secretar muco que lubrifica e protege o epitélio",
+  lieberkuhn:"Renovar o epitélio (células-tronco) e secretar lisozima e hormônios",
+  lieberkuhnG:"Produzir muco abundante e absorver água",
+  celM:"Captar antígenos da luz e entregá-los ao tecido linfoide",
+  peyer:"Vigilância imune da mucosa intestinal",
+  nodulos:"Defesa imune (tecido linfoide associado à mucosa)",
+  meso:"Formar uma superfície lisa e lubrificada que reduz o atrito entre os órgãos",
+  acinoSeroso:"Produzir secreção serosa rica em enzimas",
+  acinoMisto:"Produzir secreção mucosa (mucinas) com um componente seroso",
+  meiaLua:"Secreção serosa que se mistura ao muco do ácino",
+  intercalar:"Primeiro trecho de condução da secreção, saindo do ácino",
+  intercalarP:"Primeiro trecho de condução da secreção, saindo do ácino",
+  estriado:"Modificar a saliva: reabsorver Na+ e secretar K+ e HCO3-",
+  excretor:"Conduzir a secreção para fora da glândula",
+  excretorP:"Conduzir o suco pancreático até o duodeno",
+  centroacinosa:"Secretar bicarbonato e água (início do ducto intercalar)",
+  ilhota:"Secreção endócrina: insulina, glucagon e somatostatina",
+  vcl:"Drenar o sangue dos sinusoides do lóbulo para as veias hepáticas",
+  hepatocitos:"Metabolismo, síntese de proteínas plasmáticas e produção de bile",
+  sinusoide:"Levar o sangue misto (porta + arterial) em contato com os hepatócitos",
+  arteriaHep:"Levar sangue oxigenado ao fígado",
+  veiaPorta:"Trazer ao fígado o sangue rico em nutrientes vindo do intestino",
+  ductoBil:"Conduzir a bile para fora do fígado",
+  linfatico:"Drenar a linfa do fígado",
+  kupffer:"Fagocitar hemácias velhas, bactérias e partículas do sangue",
+  retic:"Formar o arcabouço que sustenta os cordões de hepatócitos e os sinusoides",
+  glicogenio:"Reserva de glicose",
+  pseudovilos:"Permitir que a vesícula se distenda e aumentar a superfície que concentra a bile"
+};
 
 // Órgãos: nome da resposta, tema e o raciocínio diagnóstico
 const ORG = {
@@ -357,6 +421,7 @@ const app = $("#app");
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]} return a; };
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const markTxt = m => /^\d/.test(m)?`o número ${m}`:/^[A-Z]$/.test(m)?`a letra ${m}`:m==="*"?"o asterisco (*)":m==="área circundada"?"a área circundada":`a ${m}`;
+const markPor = m => markTxt(m).replace(/^o /,"pelo ").replace(/^a /,"pela ");
 const markOpt = m => /^\d|^[A-Z]$/.test(m)?`Marcação ${m}`:m==="*"?"Asterisco (*)":m[0].toUpperCase()+m.slice(1);
 
 function buildPool(){
@@ -382,6 +447,18 @@ function buildPool(){
         dis:()=>{const out=new Set(shuffle(same).slice(0,2));
           for(const x of shuffle(allS)){if(out.size>=3)break; const n=S[x][0]; if(n!==S[k][0]) out.add(n);} return [...out];},
         exp:S[k][1],lam:im.lam});
+      if(k in CAMADA){
+        const c=CAMADAS[CAMADA[k]];
+        pool.push({tipo:"camada",tema,img:im.id,cap:im.lam,q:`A estrutura indicada ${markPor(m)} fica em qual camada?`,ok:c,
+          dis:()=>shuffle(CAMADAS.filter(x=>x!==c)).slice(0,3),exp:`Estrutura: ${S[k][0]}. ${S[k][1]} ${REGRA_CAMADA}`,lam:im.lam});
+      }
+      if(FUNC[k]){
+        const vizinhas=mk.map(x=>FUNC[x[1]]).filter(f=>f&&f!==FUNC[k]);
+        pool.push({tipo:"funcao",tema,img:im.id,cap:im.lam,q:`Qual a função da estrutura indicada ${markPor(m)}?`,ok:FUNC[k],
+          dis:()=>{const out=new Set(shuffle(vizinhas).slice(0,2));
+            for(const f of shuffle(Object.values(FUNC))){if(out.size>=3)break; if(f!==FUNC[k]) out.add(f);} return [...out];},
+          exp:`Estrutura: ${S[k][0]}. ${S[k][1]}`,lam:im.lam});
+      }
       const outrasMarcas=[...new Set(mk.filter(x=>x[0]!==m&&S[x[1]][0]!==S[k][0]).map(x=>x[0]))];
       if(outrasMarcas.length>=2)
         pool.push({tipo:"localizar",tema,img:im.id,cap:im.lam,q:`Qual marcação indica: ${S[k][0]}?`,ok:markOpt(m),
@@ -395,9 +472,9 @@ function buildPool(){
 const POOL=buildPool();
 
 // Seleção variada: alterna temas e tipos e evita repetir imagem em sequência
-function pickRound(temas,n){
+function pickRound(lista,n){
   const byTema={};
-  for(const q of shuffle(POOL.filter(q=>temas.has(q.tema)))){
+  for(const q of shuffle(lista)){
     (byTema[q.tema] ||= {}); (byTema[q.tema][q.tipo] ||= []).push(q);
   }
   const queues=Object.values(byTema).map(tipos=>{
@@ -422,30 +499,47 @@ let st={};
 const HKEY="quizHistoDigestorio";
 const hist=()=>{try{return JSON.parse(localStorage.getItem(HKEY))||[]}catch{return[]}};
 
+// escolhas da tela inicial, mantidas enquanto a página estiver aberta
+const TEMAS_LAMINA = TEMAS.filter(t=>t!=="Geral"&&POOL.some(q=>q.tema===t));
+const pref = {aleatorio:false, temas:new Set(TEMAS_LAMINA), tipos:new Set(TIPOS_PADRAO), n:20};
+const filtrar = () => POOL.filter(q=>pref.tipos.has(q.tipo) && (pref.aleatorio || pref.temas.has(q.tema)));
+
 function home(){
-  const temas=TEMAS.filter(t=>POOL.some(q=>q.tema===t));
   const h=hist();
   const media=h.length?Math.round(h.reduce((a,b)=>a+b.pct,0)/h.length):null;
+  const chip=(attr,val,label,on)=>`<button type="button" class="chip" aria-pressed="${on}" data-${attr}="${esc(val)}">${esc(label)}</button>`;
   app.innerHTML=`
     <h2>Monte seu treino</h2>
-    <p class="small">${POOL.length} questões no banco: lâminas com marcações (o que é? onde está?), reconhecimento do órgão, técnicas de coloração e teoria. Cada rodada sorteia uma combinação diferente.</p>
+    <p class="small">${POOL.length} questões no banco. O foco é a análise de lâminas: nome, camada e função da estrutura indicada por número, letra ou seta.</p>
     ${media!==null?`<p class="stat">Sua média até agora: <b>${media}%</b> em ${h.length} tentativa${h.length>1?"s":""}.</p>`:""}
+    <h3>Aleatório</h3>
+    <div class="chips">${chip("x","al","Aleatório: todos os temas misturados",pref.aleatorio).replace('data-x="al"','id="aleatorio"')}</div>
     <h3>Temas <button class="btn ghost" id="all" type="button">marcar/desmarcar todos</button></h3>
-    <div class="chips" id="temas">${temas.map(t=>`<button type="button" class="chip" aria-pressed="true" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+    <div class="chips" id="temas">${TEMAS_LAMINA.map(t=>chip("t",t,t,pref.temas.has(t))).join("")}</div>
+    <h3>Tipo de questão</h3>
+    <div class="chips" id="tipos">${Object.entries(TIPOS).map(([k,v])=>chip("k",k,v,pref.tipos.has(k))).join("")}</div>
     <h3>Quantidade de questões</h3>
-    <div class="chips" id="qtd">${[10,20,30,50].map(n=>`<button type="button" class="chip" aria-pressed="${n===20}" data-n="${n}">${n}</button>`).join("")}</div>
-    <div class="row" style="margin-top:22px"><button class="btn" id="go" type="button">Começar</button>
+    <div class="chips" id="qtd">${[10,20,30,50].map(n=>chip("n",n,n,n===pref.n)).join("")}</div>
+    <p class="small" id="disp" style="margin-top:14px"></p>
+    <div class="row" style="margin-top:8px"><button class="btn" id="go" type="button">Começar</button>
     ${h.length?`<button class="btn ghost" id="reset" type="button">apagar histórico</button>`:""}</div>`;
-  app.querySelectorAll("#temas .chip").forEach(b=>b.onclick=()=>{b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true");upd()});
-  app.querySelectorAll("#qtd .chip").forEach(b=>b.onclick=()=>{app.querySelectorAll("#qtd .chip").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true")});
-  $("#all").onclick=()=>{const bs=[...app.querySelectorAll("#temas .chip")];const on=bs.some(b=>b.getAttribute("aria-pressed")!=="true");bs.forEach(b=>b.setAttribute("aria-pressed",on));upd()};
-  if($("#reset")) $("#reset").onclick=()=>{localStorage.removeItem(HKEY);home()};
-  const upd=()=>{$("#go").disabled=!app.querySelector('#temas .chip[aria-pressed="true"]')};
-  $("#go").onclick=()=>{
-    const temasSel=new Set([...app.querySelectorAll('#temas .chip[aria-pressed="true"]')].map(b=>b.dataset.t));
-    const n=+app.querySelector('#qtd .chip[aria-pressed="true"]').dataset.n;
-    start(pickRound(temasSel,n));
+  const temaBtns=[...app.querySelectorAll("#temas .chip")];
+  const upd=()=>{
+    temaBtns.forEach(b=>{b.disabled=pref.aleatorio; b.style.opacity=pref.aleatorio?.4:1;});
+    $("#all").disabled=pref.aleatorio;
+    const n=filtrar().length;
+    $("#disp").textContent=n?`${n} questões disponíveis com essa seleção.`:"Nenhuma questão com essa seleção: escolha ao menos um tema e um tipo.";
+    $("#go").disabled=!n;
   };
+  const toggle=(set,v,b)=>{set.has(v)?set.delete(v):set.add(v); b.setAttribute("aria-pressed",set.has(v)); upd();};
+  $("#aleatorio").onclick=e=>{pref.aleatorio=!pref.aleatorio; e.currentTarget.setAttribute("aria-pressed",pref.aleatorio); upd();};
+  temaBtns.forEach(b=>b.onclick=()=>toggle(pref.temas,b.dataset.t,b));
+  app.querySelectorAll("#tipos .chip").forEach(b=>b.onclick=()=>toggle(pref.tipos,b.dataset.k,b));
+  app.querySelectorAll("#qtd .chip").forEach(b=>b.onclick=()=>{app.querySelectorAll("#qtd .chip").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");pref.n=+b.dataset.n});
+  $("#all").onclick=()=>{const tudo=pref.temas.size===TEMAS_LAMINA.length; pref.temas=new Set(tudo?[]:TEMAS_LAMINA); temaBtns.forEach(b=>b.setAttribute("aria-pressed",!tudo)); upd();};
+  if($("#reset")) $("#reset").onclick=()=>{localStorage.removeItem(HKEY);home()};
+  $("#go").onclick=()=>start(pickRound(filtrar(),pref.n));
+  upd();
 }
 
 function start(qs){
